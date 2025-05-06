@@ -8,7 +8,7 @@ const screenSocket = require("./sockets/screenSocket");
 const app = express();
 const server = http.createServer(app);
 
-// 👇 Allow only your frontend domain (Vercel)
+// ✅ Allow only Vercel frontend
 const corsOptions = {
   origin: "https://castfrontend.vercel.app",
   methods: ["GET", "POST"],
@@ -19,14 +19,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api", authRoutes);
 
-// 👇 Apply same CORS config to Socket.IO
+// ✅ socket.io CORS also for Vercel
 const io = new Server(server, {
   cors: corsOptions
 });
 
 io.on("connection", (socket) => screenSocket(socket, io));
 
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+// ✅ Correct binding for Render deployment
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
+});
